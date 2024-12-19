@@ -6,6 +6,10 @@ dist/
 wheels/
 *.egg-info
 
+# IDE
+.vscode/
+.ruff_cache
+
 # Virtual environments
 .venv
 
@@ -16,7 +20,11 @@ wheels/
 
 # FFMPEG binaries
 bin/ffmpeg
+bin/ffmpeg.exe
 
 # Videos
 videos/*
 !videos/README.md
+
+# Sensitive files
+.env

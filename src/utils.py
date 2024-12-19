@@ -26,7 +26,7 @@ def get_video_choices(video_folder):
     return video_files
 
 def shuffle_videos(video_files, result_list=[]):
-    def _func(lst, result_list):
+    def get_and_remove_random(lst, result_list):
         # Get a random item from the list
         random_item = random.choice(lst)
 
@@ -53,6 +53,6 @@ def shuffle_videos(video_files, result_list=[]):
 
     # While there are still video files to get, we keep calling
     while video_files:
-        _func(video_files, result_list)
+        get_and_remove_random(video_files, result_list)
     
     return result_list

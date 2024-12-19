@@ -5,6 +5,7 @@ I always liked the feeling of waking up in the middle of the night, turning the 
 Maybe thats just nostalgia, but i wanted to replicate a little bit of this feeling, so i created an application to randomly and constantly convert videos to the hls format aiming to replicate a stream-like functionality.
 
 ## How it works
+
 1. FastAPI serves the root html and starts the streaming manager background task.
 
 2. The background task constantly chooses the "playlist" and converts it using `ffmpeg` following [hls standards](https://en.wikipedia.org/wiki/HTTP_Live_Streaming), while taking care of cleaning any temporary files and watching over the state of the `ffmpeg` process.
@@ -14,6 +15,7 @@ Maybe thats just nostalgia, but i wanted to replicate a little bit of this feeli
 4. The index html takes care of consuming the stream, using a hls specific player to request for the video index and its segments, restarting the process when the current video is over.
 
 ## To-do
+
 - Style the html
 - Try out multithreading, testing the use of thread-safe singletons
 - Add dynamic configuration of the conversion process, such as quality and latency related flags
@@ -23,12 +25,16 @@ Maybe thats just nostalgia, but i wanted to replicate a little bit of this feeli
 - Add typing
 
 ## How to run
+
     1. Download and install `uv`
     2. Run the make default command
 
 ## Challenges
+
 - Creating a ffmpeg process for every video is redundant and fail prone, but creating a single stream of multiple files also has its challenges
 
 - At the current time, i still did not figure out how to avoid audio desync when trying to use ffmpeg's concat demuxer, maybe its just a config thing, maybe its not feasible, we'll see
 
 - My guess is the size of the segments between each file are too different
+
+- Cannot run on reload mode due to the event loop being implement differently, so you cannot run processes with it

@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 
 import logging
 
-from streaming_manager import StreamingManager
+from src.streaming_manager import StreamingManager
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -15,10 +15,12 @@ logger = logging.getLogger(__name__)
 streaming_manager = StreamingManager(logger)
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
-    await streaming_manager.start_loop()
-    yield
-    await streaming_manager.stop_loop()
+async def lifespan(_app: FastAPI):
+    try:
+        await streaming_manager.start_loop()
+        yield
+    finally:
+        await streaming_manager.stop_loop()
 
 app = FastAPI(lifespan=lifespan)
 
@@ -35,7 +37,3 @@ app.mount("/hls", StaticFiles(directory="hls"), name="hls")
 @app.get("/")
 async def read_root():
     return FileResponse("index.html")
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="localhost", port=8000)
