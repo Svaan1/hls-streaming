@@ -1,0 +1,22 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# FFMPEG files
+*.ts
+*.m3u8
+*.vtt
+
+# FFMPEG binaries
+bin/ffmpeg
+
+# Videos
+videos/*
+!videos/README.md
