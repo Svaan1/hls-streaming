@@ -1,8 +1,8 @@
 # HLS Streaming
 
-I always liked the feeling of waking up in the middle of the night, turning the tv on, and being surprised to what was playing at the time, so the silence and cozy feeling stuck with me to this day.
+I always liked the feeling of waking up in the middle of the night, turning the tv on, and being surprised by what was playing at the time, so much so that the silence and cozy feeling stuck with me to this day.
 
-Maybe is just nostalgia, but i wanted to replicate a little bit of this feeling, so i created an application to randomly and constantly convert videos to the hls format aiming to replicate a stream-like functionality.
+Maybe thats just nostalgia, but i wanted to replicate a little bit of this feeling, so i created an application to randomly and constantly convert videos to the hls format aiming to replicate a stream-like functionality.
 
 ## How it works
 1. FastAPI serves the root html and starts the streaming manager background task.
