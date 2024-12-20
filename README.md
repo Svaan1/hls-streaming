@@ -18,11 +18,17 @@ Maybe thats just nostalgia, but i wanted to replicate a little bit of this feeli
 
 - Style the html
 - Try out multithreading, testing the use of thread-safe singletons
-- Add dynamic configuration of the conversion process, such as quality and latency related flags
-- Add more thorough exception handling in the loop and start streaming functions
-- Add grafana for resource utilization monitoring
-- Add docker config for resource limiting nitpicks, such as thread and memory reserving
-- Add typing
+- dynamic configuration of the conversion process, such as quality and latency related flags
+- more thorough exception handling in the loop and start streaming functions
+- grafana for resource utilization monitoring
+- docker config for resource limiting nitpicks, such as thread and memory reserving
+- typing
+- real-time chats
+- user upload on videos 
+- better ffmpeg process logging
+- figure out process dying suddenly (linux)
+- comments in the middle of the video (lol)
+- tts
 
 ## How to run
 
@@ -37,4 +43,4 @@ Maybe thats just nostalgia, but i wanted to replicate a little bit of this feeli
 
 - My guess is the size of the segments between each file are too different
 
-- Cannot run on reload mode due to the event loop being implement differently, so you cannot run processes with it
+- Cannot run on reload mode due to the event loop being implemented differently, so you cannot run processes with it

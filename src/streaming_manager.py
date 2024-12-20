@@ -61,16 +61,16 @@ class StreamingManager:
             cmd = get_ffmpeg_command(input_file)
             self.logger.info(f"Streaming video with command: {' '.join(cmd)}")	
 
-            # Start the process sending the output to /dev/null
-            self.current_process = await asyncio.create_subprocess_exec(
-                *cmd,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
+            # Start the process sending the output to a log file
+            with open("ffmpeg.log", "w") as log_file:
+                self.current_process = await asyncio.create_subprocess_exec(
+                    *cmd,
+                    stdout=log_file,
+                    stderr=log_file
+                )
+                await self.current_process.communicate()
 
-            await self.current_process.wait()
         except Exception as e:
-            print
             self.logger.error(f"Error streaming video: {e}")
             await self.stop_loop()
             return

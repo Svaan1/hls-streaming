@@ -28,3 +28,6 @@ videos/*
 
 # Sensitive files
 .env
+
+# Auto-generated files
+*.log
