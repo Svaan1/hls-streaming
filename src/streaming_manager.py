@@ -21,8 +21,8 @@ class StreamingManager:
     async def stop_loop(self):
         self.logger.info("Stopping loop...")
         await self._stop_streaming()
-        self.run_loop = False
         if self.loop_task is not None:
+            self.run_loop = False
             self.loop_task.cancel()
             await self.loop_task
 
@@ -31,13 +31,10 @@ class StreamingManager:
         shuffled_videos = []
 
         while self.run_loop:
-            self.logger.info("Started new loop...")
-
             # Check if we need to check for new videos
             if not shuffled_videos:
                 videos = get_video_choices(video_folder=settings.VIDEO_FOLDER_PATH)
                 shuffled_videos = shuffle_videos(videos)
-
                 self.logger.info(f"Found {len(shuffled_videos)} videos, shuffling...")
 
             # Check if the process is already running
@@ -47,9 +44,8 @@ class StreamingManager:
             
             # Start a new process if there are videos to stream and no process is running
             if self.current_process is None:
-                self.logger.info("Starting new video stream...")    
+                self.logger.info("Starting new video stream...")
                 current_video = shuffled_videos.pop(0)
-                self.logger.info(f"Streaming video: {current_video}")
                 await self._stream_video(current_video)
                 self.current_process = None
                 self.logger.info("Video stream ended.")
@@ -62,21 +58,7 @@ class StreamingManager:
 
         try:
             # Define the ffmpeg command
-            cmd = [
-                settings.FFMPEG_PATH,
-                '-re',
-                '-i', input_file,
-                '-c:v', 'libx264',
-                '-preset', 'veryfast',
-                '-c:a', 'aac',
-                '-b:a', '128k',
-                '-ar', '44100',
-                '-hls_time', '4',
-                '-hls_list_size', '5',
-                '-hls_flags', 'delete_segments',
-                f'{settings.FFMPEG_OUTPUT_PATH}/index.m3u8'
-            ]
-
+            cmd = get_ffmpeg_command(input_file)
             self.logger.info(f"Streaming video with command: {' '.join(cmd)}")	
 
             # Start the process sending the output to /dev/null
@@ -125,4 +107,22 @@ class StreamingManager:
 
             file_path = Path(settings.FFMPEG_OUTPUT_PATH) / file
             file_path.unlink()
+        
+def get_ffmpeg_command(input_file):
+    return [
+        settings.FFMPEG_PATH,
+        '-re',
+        '-i', input_file,
+        '-preset', settings.PRESET,
+        '-c:v', settings.VIDEO_ENCODER,
+        '-c:a', settings.AUDIO_ENCODER,
+        '-b:v', settings.VIDEO_BIRATE,
+        '-b:a', settings.AUDIO_BIRATE,
+        '-ar', settings.AUDIO_SAMPLE_RATE,
+        '-hls_time', settings.HLS_TIME,
+        '-hls_list_size', settings.HLS_LIST_SIZE,
+        '-hls_flags', settings.HLS_FLAGS,
+        f'{settings.FFMPEG_OUTPUT_PATH}/index.m3u8'
+    ]
+
 
