@@ -1,0 +1,17 @@
+video_folder_path = "path/to/your/videos"
+hls_output = "path/to/your/hls/output"
+
+[channels]
+cartoons = ["path/to/your/video/folder1", "path/to/your/video/folder2"]
+
+[ffmpeg]
+binary_path = "path/to/ffmpeg"
+video_bitrate = "1M"
+video_encoder = "libx264"
+audio_bitrate = "128K"
+audio_encoder = "aac"
+audio_sample_rate = "44100"
+preset = "veryfast"
+hls_time = "4"
+hls_list_size = "5"
+hls_flags = "delete_segments"
