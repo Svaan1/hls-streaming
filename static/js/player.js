@@ -1,27 +1,54 @@
 const video = document.getElementById('hls-video');
-const hlsUrl = '/hls/index.m3u8';
+let currentChannelIndex = 0;
+const channels = window.availableChannels;
+
+function getHlsUrl(channelName) {
+    return `/hls/${channelName}/index.m3u8`;
+}
+
+function loadVideo(channelUrl) {
+    if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(channelUrl);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+            video.play();
+        });
+    }
+}
+
+function switchChannel(index) {
+    if (!isPowered) return;
+    currentChannelIndex = index;
+    const channelName = channels[currentChannelIndex];
+    loadVideo(getHlsUrl(channelName));
+}
+
+function nextChannel() {
+    if (channels.length <= 1) return;
+    currentChannelIndex = (currentChannelIndex + 1) % channels.length;
+    switchChannel(currentChannelIndex);
+}
+
+function previousChannel() {
+    if (channels.length <= 1) return;
+    currentChannelIndex = (currentChannelIndex - 1 + channels.length) % channels.length;
+    switchChannel(currentChannelIndex);
+}
+
+// Initialize with first channel
+if (Hls.isSupported() && channels.length > 0) {
+    loadVideo(getHlsUrl(channels[0]));
+}
 
 let isPowered = true;
-
-function loadVideo() {
-    const hls = new Hls();
-    hls.loadSource(hlsUrl);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, function () {
-        video.play();
-    });
-}
 
 video.addEventListener('ended', () => {
     setTimeout(() => {
         console.log('Restarting video after 5 seconds...');
     }, 5000);
-    loadVideo();
+    loadVideo(getHlsUrl(channels[currentChannelIndex]));
 });
-
-if (Hls.isSupported()) {
-    loadVideo();
-}
 
 function toggleMute() {
     if (!isPowered) return;

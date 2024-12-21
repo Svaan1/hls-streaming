@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="{{ url_for('static', path='/styles/player.css') }}">
 </head>
 <body>
+    <script>
+        window.availableChannels = {{ available_channels|tojson|safe }};
+    </script>
+
     <div class="tv-container">
         <div class="screen-controls-wrapper">
             <div class="screen">
@@ -16,6 +20,12 @@
             </div>
             <div class="controls">
                 <div class="control-panel">
+                    <button class="tv-btn channel-btn prev-channel" onclick="previousChannel()">
+                        <span class="btn-icon">◀</span>
+                    </button>
+                    <button class="tv-btn channel-btn next-channel" onclick="nextChannel()">
+                        <span class="btn-icon">▶</span>
+                    </button>
                     <button class="tv-btn fullscreen-btn" onclick="toggleFullscreen()">
                         <span class="btn-icon">⛶</span>
                     </button>
@@ -31,5 +41,6 @@
             </div>
         </div>
     </div>
+
 </body>
 </html>

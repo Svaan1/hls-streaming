@@ -114,6 +114,15 @@ body {
     font-size: 20px;
 }
 
+.channel-btn .btn-icon {
+    font-size: 14px;
+    color: #808080;
+}
+
+.channel-btn:active {
+    transform: scale(0.95);
+}
+
 .power-indicator,
 .mute-indicator {
     position: absolute;

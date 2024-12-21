@@ -1,25 +1,41 @@
+import os
+import random
 import asyncio
 
 from pathlib import Path
 from src.config import settings
-import os
 
-from src.utils import get_video_choices, shuffle_videos
+from src.utils import get_folder_videos
+from src.logger import logger
 
 class StreamingManager:
-    def __init__(self, logger):
-        self.logger = logger
+    def __init__(self, channel_name, video_folders):
+        self.channel_name = channel_name
+        self.output_path = Path(settings.hls_output) / self.channel_name
+
+        logger.info(f"Initializing streaming manager for channel {self.channel_name}...")
+
+        self.video_options = []
+
+        for folder in video_folders:
+            self.video_options.append(get_folder_videos(folder))
+
+        logger.info(f"Found {len(self.video_options)} video folders with a total of {sum(len(folder) for folder in self.video_options)} videos.")
 
         self.current_process = None
         self.loop_task = None
         self.run_loop = False
+        
+        if not os.path.exists(self.output_path):
+            logger.info(f"Creating output folder: {self.output_path}")
+            os.makedirs(self.output_path)
 
     async def start_loop(self):
         self.run_loop = True
         self.loop_task = asyncio.create_task(self._loop())
 
     async def stop_loop(self):
-        self.logger.info("Stopping loop...")
+        logger.info("Stopping loop...")
         await self._stop_streaming()
         if self.loop_task is not None:
             self.run_loop = False
@@ -27,16 +43,7 @@ class StreamingManager:
             await self.loop_task
 
     async def _loop(self):
-        videos = []
-        shuffled_videos = []
-
         while self.run_loop:
-            # Check if we need to check for new videos
-            if not shuffled_videos:
-                videos = get_video_choices(video_folder=settings.VIDEO_FOLDER_PATH)
-                shuffled_videos = shuffle_videos(videos)
-                self.logger.info(f"Found {len(shuffled_videos)} videos, shuffling...")
-
             # Check if the process is already running
             if self.current_process is not None:
                 await asyncio.sleep(1)
@@ -44,11 +51,11 @@ class StreamingManager:
             
             # Start a new process if there are videos to stream and no process is running
             if self.current_process is None:
-                self.logger.info("Starting new video stream...")
-                current_video = shuffled_videos.pop(0)
+                logger.info("Starting new video stream...")
+                current_video = self.get_random_video()
                 await self._stream_video(current_video)
                 self.current_process = None
-                self.logger.info("Video stream ended.")
+                logger.info("Video stream ended.")
 
             
     async def _stream_video(self, input_file):
@@ -58,11 +65,11 @@ class StreamingManager:
 
         try:
             # Define the ffmpeg command
-            cmd = get_ffmpeg_command(input_file)
-            self.logger.info(f"Streaming video with command: {' '.join(cmd)}")	
+            cmd = self.get_ffmpeg_command(input_file)
+            logger.info(f"Streaming video with command: {' '.join(cmd)}")	
 
             # Start the process sending the output to a log file
-            with open("ffmpeg.log", "w") as log_file:
+            with open(self.output_path / "ffmpeg.log", "w") as log_file:
                 self.current_process = await asyncio.create_subprocess_exec(
                     *cmd,
                     stdout=log_file,
@@ -71,7 +78,7 @@ class StreamingManager:
                 await self.current_process.communicate()
 
         except Exception as e:
-            self.logger.error(f"Error streaming video: {e}")
+            logger.error(f"Error streaming video: {e}")
             await self.stop_loop()
             return
 
@@ -86,43 +93,47 @@ class StreamingManager:
             try:
                 await asyncio.wait_for(self.current_process.wait(), timeout=5.0)
             except asyncio.TimeoutError:
-                self.logger.warning("Process did not terminate within timeout, forcing...")
+                logger.warning("Process did not terminate within timeout, forcing...")
                 self.current_process.kill()
                 await self.current_process.wait()
 
         except Exception as e:
-            self.logger.error(f"Error stopping stream: {e}")
+            logger.error(f"Error stopping stream: {e}")
 
         finally:
             self.clean_files()
             self.current_process = None
     
+    def get_random_video(self):
+        random_folder = random.choice(self.video_options)
+        return random.choice(random_folder)
+
     def clean_files(self):
-        self.logger.info("Cleaning up files...")
+        logger.info("Cleaning up files...")
 
         extensions = ('.ts', '.m3u8', '.vtt')
-        for file in os.listdir(settings.FFMPEG_OUTPUT_PATH):
+        for file in os.listdir(self.output_path):
             if not file.endswith(extensions):
                 continue
 
-            file_path = Path(settings.FFMPEG_OUTPUT_PATH) / file
+            file_path = self.output_path / file
             file_path.unlink()
         
-def get_ffmpeg_command(input_file):
-    return [
-        settings.FFMPEG_PATH,
-        '-re',
-        '-i', input_file,
-        '-preset', settings.PRESET,
-        '-c:v', settings.VIDEO_ENCODER,
-        '-c:a', settings.AUDIO_ENCODER,
-        '-b:v', settings.VIDEO_BIRATE,
-        '-b:a', settings.AUDIO_BIRATE,
-        '-ar', settings.AUDIO_SAMPLE_RATE,
-        '-hls_time', settings.HLS_TIME,
-        '-hls_list_size', settings.HLS_LIST_SIZE,
-        '-hls_flags', settings.HLS_FLAGS,
-        f'{settings.FFMPEG_OUTPUT_PATH}/index.m3u8'
-    ]
+    def get_ffmpeg_command(self, input_file):
+        return [
+            settings.ffmpeg.binary_path,
+            '-re',
+            '-i', input_file,
+            '-b:v', settings.ffmpeg.video_bitrate,
+            '-c:v', settings.ffmpeg.video_encoder,
+            '-b:a', settings.ffmpeg.audio_bitrate,
+            '-c:a', settings.ffmpeg.audio_encoder,
+            '-preset', settings.ffmpeg.preset,
+            '-ar', settings.ffmpeg.audio_sample_rate,
+            '-hls_time', settings.ffmpeg.hls_time,
+            '-hls_list_size', settings.ffmpeg.hls_list_size,
+            '-hls_flags', settings.ffmpeg.hls_flags,
+            str(self.output_path) + '/index.m3u8'
+        ]
 
 

@@ -17,15 +17,15 @@ Maybe thats just nostalgia, but i wanted to replicate a little bit of this feeli
 ## To-do
 
 - ~~Style the html~~ ✅
-- Try out multithreading, testing the use of thread-safe singletons
 - ~~dynamic configuration of the conversion process, such as quality and latency related flags~~ ✅
 - ~~more thorough exception handling in the loop and start streaming functions~~ ✅
+- ~~better ffmpeg process logging~~ ✅
+- Multiple channels (multiple instances of the streaming manager, one for each playlist, change config lib to dynaconf to use a toml file instead of a .env), computational expensive but kinda cool
 - grafana for resource utilization monitoring
 - docker config for resource limiting nitpicks, such as thread and memory reserving
 - typing
 - real-time chats
 - user upload on videos
-- ~~better ffmpeg process logging~~ ✅
 - figure out process dying suddenly (linux)
 - comments in the middle of the video (lol)
 - tts

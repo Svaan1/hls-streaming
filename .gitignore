@@ -28,6 +28,7 @@ videos/*
 
 # Sensitive files
 .env
+.secrets.toml
 
 # Auto-generated files
 *.log
