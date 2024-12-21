@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HLS Player</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script defer src="{{ url_for('static', path='/js/player.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles/player.css') }}">
+</head>
+<body>
+    <div class="tv-container">
+        <div class="screen-controls-wrapper">
+            <div class="screen">
+                <video id="hls-video" autoplay disablePictureInPicture muted></video>
+            </div>
+            <div class="controls">
+                <div class="control-panel">
+                    <button class="tv-btn fullscreen-btn" onclick="toggleFullscreen()">
+                        <span class="btn-icon">⛶</span>
+                    </button>
+                    <button class="tv-btn mute-btn" onclick="toggleMute()">
+                        <span class="btn-icon">🔊</span>
+                        <span class="mute-indicator"></span>
+                    </button>
+                    <button class="tv-btn power-btn" onclick="togglePower()">
+                        <span class="btn-icon">○</span>
+                        <span class="power-indicator"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

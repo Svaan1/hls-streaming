@@ -1,11 +1,10 @@
-from fastapi import FastAPI
-from fastapi.responses import FileResponse
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-
+import logging
 from contextlib import asynccontextmanager
 
-import logging
+from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.streaming_manager import StreamingManager
 
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 streaming_manager = StreamingManager(logger)
 
 @asynccontextmanager
-async def lifespan(_app: FastAPI):
+async def lifespan(_app):
     try:
         await streaming_manager.start_loop()
         yield
@@ -23,6 +22,8 @@ async def lifespan(_app: FastAPI):
         await streaming_manager.stop_loop()
 
 app = FastAPI(lifespan=lifespan)
+
+templates = Jinja2Templates(directory="templates")
 
 app.add_middleware(
     CORSMiddleware,
@@ -33,7 +34,8 @@ app.add_middleware(
 )
 
 app.mount("/hls", StaticFiles(directory="hls"), name="hls")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
-async def read_root():
-    return FileResponse("index.html")
+async def read_root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})

@@ -16,16 +16,16 @@ Maybe thats just nostalgia, but i wanted to replicate a little bit of this feeli
 
 ## To-do
 
-- Style the html
+- ~~Style the html~~ ✅
 - Try out multithreading, testing the use of thread-safe singletons
-- dynamic configuration of the conversion process, such as quality and latency related flags
-- more thorough exception handling in the loop and start streaming functions
+- ~~dynamic configuration of the conversion process, such as quality and latency related flags~~ ✅
+- ~~more thorough exception handling in the loop and start streaming functions~~ ✅
 - grafana for resource utilization monitoring
 - docker config for resource limiting nitpicks, such as thread and memory reserving
 - typing
 - real-time chats
-- user upload on videos 
-- better ffmpeg process logging
+- user upload on videos
+- ~~better ffmpeg process logging~~ ✅
 - figure out process dying suddenly (linux)
 - comments in the middle of the video (lol)
 - tts
