@@ -40,7 +40,6 @@ class StreamingManager:
         if self.loop_task is not None:
             self.run_loop = False
             self.loop_task.cancel()
-            await self.loop_task
 
     async def _loop(self):
         while self.run_loop:
@@ -133,6 +132,7 @@ class StreamingManager:
             '-hls_time', settings.ffmpeg.hls_time,
             '-hls_list_size', settings.ffmpeg.hls_list_size,
             '-hls_flags', settings.ffmpeg.hls_flags,
+            '-sn',
             str(self.output_path) + '/index.m3u8'
         ]
 
