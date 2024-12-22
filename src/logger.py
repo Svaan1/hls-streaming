@@ -1,5 +1,4 @@
 from colorama import Fore, Style, init
-import datetime
 
 init(autoreset=True)
 
