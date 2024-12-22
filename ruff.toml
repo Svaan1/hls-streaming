@@ -1,0 +1,22 @@
+line-length = 160
+indent-width = 4
+
+target-version = "py312"
+
+exclude = [".git", ".venv", "__pycache__", "build", "dist"]
+
+[lint]
+select = [
+    "E", # pycodestyle errors
+    "F", # pyflakes
+    "B", # flake8-bugbear
+    "I", # isort
+    "W", # pycodestyle warnings
+]
+
+ignore = ["E501", "B008"] # Ignore specific rules
+
+fixable = ["ALL"]
+unfixable = []
+
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"

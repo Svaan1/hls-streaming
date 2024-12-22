@@ -1,8 +1,10 @@
-from prometheus_client import start_http_server, Gauge
-import psutil
 import asyncio
 
+import psutil
+from prometheus_client import Gauge, start_http_server
+
 from src.logger import logger
+
 
 class MetricsTracker:
     def __init__(self, streaming_managers):
@@ -11,21 +13,33 @@ class MetricsTracker:
         self.run_loop = False
         self.loop_task = None
 
-        logger.info('Initializing metrics tracker')
+        logger.info("Initializing metrics tracker")
 
-        self.cpu_gauges = {streaming_manager.channel_name: Gauge(f'{streaming_manager.channel_name}_cpu_percent', f'CPU usage of the channel {streaming_manager.channel_name}') for streaming_manager in self.streaming_managers}
-        self.memory_gauges = {streaming_manager.channel_name: Gauge(f'{streaming_manager.channel_name}_memory_usage', f'Memory usage of the channel {streaming_manager.channel_name}') for streaming_manager in self.streaming_managers}
+        self.cpu_gauges = {
+            streaming_manager.channel_name: Gauge(
+                f"{streaming_manager.channel_name}_cpu_percent",
+                f"CPU usage of the channel {streaming_manager.channel_name}",
+            )
+            for streaming_manager in self.streaming_managers
+        }
+        self.memory_gauges = {
+            streaming_manager.channel_name: Gauge(
+                f"{streaming_manager.channel_name}_memory_usage",
+                f"Memory usage of the channel {streaming_manager.channel_name}",
+            )
+            for streaming_manager in self.streaming_managers
+        }
 
-        logger.info('Metrics tracker initialized')
-            
+        logger.info("Metrics tracker initialized")
+
     async def start_loop(self):
-        logger.info('Starting metrics tracker')
+        logger.info("Starting metrics tracker")
         try:
             start_http_server(8001)
         except Exception as e:
-            logger.error('Failed to start metrics server on port 8001: ' + str(e))
+            logger.error("Failed to start metrics server on port 8001: " + str(e))
             return
-        logger.info('Metrics tracker started')
+        logger.info("Metrics tracker started")
         self.run_loop = True
         self.loop_task = asyncio.create_task(self._loop())
 
@@ -39,7 +53,7 @@ class MetricsTracker:
             try:
                 await self._collect_metrics()
             except Exception as e:
-                logger.error('Failed to collect metrics: ' + str(e))
+                logger.error("Failed to collect metrics: " + str(e))
                 return
             await asyncio.sleep(15)
 
@@ -47,7 +61,7 @@ class MetricsTracker:
         for streaming_manager in self.streaming_managers:
             if streaming_manager.current_process is None:
                 continue
-            
+
             p = psutil.Process(streaming_manager.current_process.pid)
 
             cpu_usage = self.cpu_gauges[streaming_manager.channel_name]

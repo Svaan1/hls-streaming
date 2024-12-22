@@ -1,7 +1,7 @@
 import os
-import random
 
-VIDEO_EXTENSIONS = ('.mp4', '.mkv', '.avi', '.mov', '.flv', '.wmv', '.webm')
+VIDEO_EXTENSIONS = (".mp4", ".mkv", ".avi", ".mov", ".flv", ".wmv", ".webm")
+
 
 def get_folder_videos(folder):
     files = []

@@ -1,13 +1,13 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.middleware.cors import CORSMiddleware
 
-from src.streaming import StreamingManager
-from src.metrics import MetricsTracker
 from src.config import settings
+from src.metrics import MetricsTracker
+from src.streaming import StreamingManager
 
 streaming_managers = []
 
@@ -17,6 +17,7 @@ for channel_name in settings.channels:
     streaming_managers.append(streaming_manager)
 
 metrics_tracker = MetricsTracker(streaming_managers)
+
 
 @asynccontextmanager
 async def lifespan(_app):
@@ -29,6 +30,7 @@ async def lifespan(_app):
         for streaming_manager in streaming_managers:
             await streaming_manager.stop_loop()
         await metrics_tracker.stop_loop()
+
 
 app = FastAPI(lifespan=lifespan)
 
@@ -45,6 +47,13 @@ app.add_middleware(
 app.mount("/hls", StaticFiles(directory=settings.hls_output), name="hls")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+
 @app.get("/")
 async def read_root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request, "available_channels": [channel_name for channel_name in settings.channels]})
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "available_channels": [channel_name for channel_name in settings.channels],
+        },
+    )
