@@ -6,6 +6,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.streaming import StreamingManager
+from src.metrics import MetricsTracker
 from src.config import settings
 
 streaming_managers = []
@@ -15,15 +16,19 @@ for channel_name in settings.channels:
     streaming_manager = StreamingManager(channel_name=channel_name, video_folders=video_folders)
     streaming_managers.append(streaming_manager)
 
+metrics_tracker = MetricsTracker(streaming_managers)
+
 @asynccontextmanager
 async def lifespan(_app):
     try:
         for streaming_manager in streaming_managers:
             await streaming_manager.start_loop()
+        await metrics_tracker.start_loop()
         yield
     finally:
         for streaming_manager in streaming_managers:
             await streaming_manager.stop_loop()
+        await metrics_tracker.stop_loop()
 
 app = FastAPI(lifespan=lifespan)
 
