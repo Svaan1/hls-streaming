@@ -19,17 +19,25 @@ for channel_name in settings.channels:
 metrics_tracker = MetricsTracker(streaming_managers)
 
 
+async def on_startup():
+    for streaming_manager in streaming_managers:
+        await streaming_manager.start_loop()
+    await metrics_tracker.start_loop()
+
+
+async def on_shutdown():
+    for streaming_manager in streaming_managers:
+        await streaming_manager.stop_loop()
+    await metrics_tracker.stop_loop()
+
+
 @asynccontextmanager
 async def lifespan(_app):
     try:
-        for streaming_manager in streaming_managers:
-            await streaming_manager.start_loop()
-        await metrics_tracker.start_loop()
+        await on_startup()
         yield
     finally:
-        for streaming_manager in streaming_managers:
-            await streaming_manager.stop_loop()
-        await metrics_tracker.stop_loop()
+        await on_shutdown()
 
 
 app = FastAPI(lifespan=lifespan)
