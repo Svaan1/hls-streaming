@@ -6,9 +6,16 @@ from prometheus_client import Gauge, start_http_server
 
 from src.config import settings
 from src.logger import logger
+from src.streaming import StreamingManager
 
 
 class MetricsTracker:
+    streaming_managers: list[StreamingManager]
+    cpu_gauges: dict[str, Gauge]
+    memory_gauges: dict[str, Gauge]
+    run_loop: bool
+    loop_task: asyncio.Task | None
+
     def __init__(self, streaming_managers):
         self.streaming_managers = streaming_managers
         self.cpu_gauges = {}

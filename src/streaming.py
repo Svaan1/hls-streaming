@@ -8,6 +8,13 @@ from src.utils import get_folder_videos
 
 
 class StreamingManager:
+    channel_name: str
+    output_path: Path
+    current_process: asyncio.subprocess.Process | None
+    loop_task: asyncio.Task | None
+    run_loop: bool
+    video_options: list[list[str]]
+
     def __init__(self, channel_name, video_folders):
         self.channel_name = channel_name
         self.output_path = Path(settings.hls_output) / self.channel_name
@@ -23,7 +30,7 @@ class StreamingManager:
 
     # Initialization methods ==================================================
 
-    def _initialize_video_folders(self, video_folders) -> None:
+    def _initialize_video_folders(self, video_folders):
         for folder in video_folders:
             videos = get_folder_videos(folder)
             self.video_options.append(videos)
@@ -32,7 +39,7 @@ class StreamingManager:
         total_videos = sum(len(folder) for folder in self.video_options)
         logger.info(f"Found {number_of_folders} video folders with {total_videos} total videos")
 
-    def _ensure_output_directory(self) -> None:
+    def _ensure_output_directory(self):
         self.output_path.mkdir(parents=True, exist_ok=True)
         logger.info(f"Using output directory: {self.output_path}")
 
@@ -50,7 +57,7 @@ class StreamingManager:
 
     async def stop_loop(self):
         logger.info("Streaming stopping loop...")
-        await self._stop_streaming()
+        await self._stop_video_stream()
         if self.loop_task is not None:
             self.run_loop = False
             self.loop_task.cancel()
@@ -65,10 +72,10 @@ class StreamingManager:
                 continue
 
             current_video = self._get_random_video()
-            await self._stream_video(current_video)
+            await self._start_video_stream(current_video)
             self.current_process = None
 
-    async def _stream_video(self, input_file):
+    async def _start_video_stream(self, input_file):
         if self.current_process is not None:
             return
 
@@ -87,7 +94,7 @@ class StreamingManager:
             await self.stop_loop()
             return
 
-    async def _stop_streaming(self):
+    async def _stop_video_stream(self):
         if self.current_process is None:
             self._clean_files()
             return
@@ -123,7 +130,7 @@ class StreamingManager:
 
     def _build_ffmpeg_command(self, input_file):
         return [
-            settings.ffmpeg.binary_path,
+            str(settings.ffmpeg.binary_path),
             "-re",
             "-i",
             input_file,

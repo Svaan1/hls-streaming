@@ -1,8 +1,49 @@
-from pathlib import Path
+from typing import Any, Dict
 
-from dynaconf import Dynaconf, Validator
+from dynaconf import Dynaconf
+from pydantic import BaseModel, FilePath
 
-settings = Dynaconf(
+
+class FFmpegSettings(BaseModel):
+    binary_path: FilePath
+    video_bitrate: str
+    video_encoder: str
+    audio_bitrate: str
+    audio_encoder: str
+    audio_sample_rate: str
+    preset: str
+    hls_time: str
+    hls_list_size: str
+    hls_flags: str
+
+
+class Settings(BaseModel):
+    hls_output: str
+    channels: Dict[str, Any]
+    ffmpeg: FFmpegSettings
+
+    @classmethod
+    def from_dynaconf(cls, dynaconf_settings: Dynaconf) -> "Settings":
+        settings_dict = {
+            "hls_output": dynaconf_settings.hls_output,
+            "channels": dynaconf_settings.channels,
+            "ffmpeg": {
+                "binary_path": dynaconf_settings.ffmpeg.binary_path,
+                "video_bitrate": dynaconf_settings.ffmpeg.video_bitrate,
+                "video_encoder": dynaconf_settings.ffmpeg.video_encoder,
+                "audio_bitrate": dynaconf_settings.ffmpeg.audio_bitrate,
+                "audio_encoder": dynaconf_settings.ffmpeg.audio_encoder,
+                "audio_sample_rate": dynaconf_settings.ffmpeg.audio_sample_rate,
+                "preset": dynaconf_settings.ffmpeg.preset,
+                "hls_time": dynaconf_settings.ffmpeg.hls_time,
+                "hls_list_size": dynaconf_settings.ffmpeg.hls_list_size,
+                "hls_flags": dynaconf_settings.ffmpeg.hls_flags,
+            },
+        }
+        return cls(**settings_dict)
+
+
+dynaconf_settings = Dynaconf(
     settings_files=[
         "settings.toml",
         ".secrets.toml",
@@ -10,19 +51,4 @@ settings = Dynaconf(
     case_sensitive=False,
 )
 
-settings.validators.register(
-    Validator("hls_output", must_exist=True),
-    Validator("channels", must_exist=True, is_type_of=dict),
-    Validator("ffmpeg.binary_path", must_exist=True, condition=lambda x: Path(x).exists()),
-    Validator("ffmpeg.video_bitrate", must_exist=True, is_type_of=str),
-    Validator("ffmpeg.video_encoder", must_exist=True, is_type_of=str),
-    Validator("ffmpeg.audio_bitrate", must_exist=True, is_type_of=str),
-    Validator("ffmpeg.audio_encoder", must_exist=True, is_type_of=str),
-    Validator("ffmpeg.audio_sample_rate", must_exist=True, is_type_of=str),
-    Validator("ffmpeg.preset", must_exist=True, is_type_of=str),
-    Validator("ffmpeg.hls_time", must_exist=True, is_type_of=str),
-    Validator("ffmpeg.hls_list_size", must_exist=True, is_type_of=str),
-    Validator("ffmpeg.hls_flags", must_exist=True, is_type_of=str),
-)
-
-settings.validators.validate_all()
+settings = Settings.from_dynaconf(dynaconf_settings)

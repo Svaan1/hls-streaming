@@ -21,9 +21,13 @@ Maybe thats just nostalgia, but i wanted to replicate a little bit of this feeli
 - ~~more thorough exception handling in the loop and start streaming functions~~ ✅
 - ~~better ffmpeg process logging~~ ✅
 - ~~Multiple channels (multiple instances of the streaming manager, one for each playlist, change config lib to dynaconf to use a toml file instead of a .env), computational expensive but kinda cool~~ ✅
+- Prometheus for resource tracking (figure out the ffmpeg having multiple pids thing)
 - grafana for resource utilization monitoring
 - docker config for resource limiting nitpicks, such as thread and memory reserving
+- Add metadata (title, author, whatever i can get from the video metadata) from the current video and channel
+- Add volume control to the player
 - typing
+- Add some documenting
 - real-time chats
 - user upload on videos
 - figure out process dying suddenly (linux)

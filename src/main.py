@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from typing import List
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,14 +10,18 @@ from src.config import settings
 from src.metrics import MetricsTracker
 from src.streaming import StreamingManager
 
-streaming_managers = []
+# Start the streaming manager for each channel, then start the metrics tracker
 
-for channel_name in settings.channels:
-    video_folders = settings.channels[channel_name]
-    streaming_manager = StreamingManager(channel_name=channel_name, video_folders=video_folders)
+streaming_managers: List[StreamingManager] = []
+
+for channel, folders in settings.channels.items():
+    streaming_manager = StreamingManager(channel_name=channel, video_folders=folders)
     streaming_managers.append(streaming_manager)
 
 metrics_tracker = MetricsTracker(streaming_managers)
+
+
+# Define the startup and shutdown routines
 
 
 async def on_startup():
@@ -32,13 +37,15 @@ async def on_shutdown():
 
 
 @asynccontextmanager
-async def lifespan(_app):
+async def lifespan(_app: FastAPI):
     try:
         await on_startup()
         yield
     finally:
         await on_shutdown()
 
+
+# Create the FastAPI app, including middleware, templates, mounted directories and routes
 
 app = FastAPI(lifespan=lifespan)
 
