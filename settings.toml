@@ -1,4 +1,3 @@
-video_folder_path = "path/to/your/videos"
 hls_output = "path/to/your/hls/output"
 
 [channels]

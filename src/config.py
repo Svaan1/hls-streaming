@@ -11,8 +11,8 @@ settings = Dynaconf(
 )
 
 settings.validators.register(
-    Validator("video_folder_path", must_exist=True, condition=lambda x: Path(x).exists()),
-    Validator("hls_output", must_exist=True, condition=lambda x: Path(x).exists()),
+    Validator("hls_output", must_exist=True),
+    Validator("channels", must_exist=True, is_type_of=dict),
     Validator("ffmpeg.binary_path", must_exist=True, condition=lambda x: Path(x).exists()),
     Validator("ffmpeg.video_bitrate", must_exist=True, is_type_of=str),
     Validator("ffmpeg.video_encoder", must_exist=True, is_type_of=str),

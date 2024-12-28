@@ -13,20 +13,19 @@ class StreamingManager:
         self.channel_name = channel_name
         self.output_path = Path(settings.hls_output) / self.channel_name
 
-        logger.info(f"Initializing streaming manager for channel {self.channel_name}...")
-
-        self.video_options = []
-
-        for folder in video_folders:
-            self.video_options.append(get_folder_videos(folder))
-
-        logger.info(
-            f"Found {len(self.video_options)} video folders with a total of {sum(len(folder) for folder in self.video_options)} videos."
-        )
-
         self.current_process = None
         self.loop_task = None
         self.run_loop = False
+
+        self.video_options = []
+
+        logger.info(f"Initializing streaming manager for channel {self.channel_name}...")
+
+        for folder in video_folders:
+            videos = get_folder_videos(folder)
+            self.video_options.append(videos)
+
+        logger.info(f"Found {len(self.video_options)} video folders with a total of {sum(len(folder) for folder in self.video_options)} videos.")
 
         if not os.path.exists(self.output_path):
             logger.info(f"Creating output folder: {self.output_path}")
@@ -65,9 +64,7 @@ class StreamingManager:
             logger.info(f"Streaming video with command: {' '.join(cmd)}")
 
             with open(self.output_path / "ffmpeg.log", "w") as log_file:
-                self.current_process = await asyncio.create_subprocess_exec(
-                    *cmd, stdout=log_file, stderr=log_file
-                )
+                self.current_process = await asyncio.create_subprocess_exec(*cmd, stdout=log_file, stderr=log_file)
                 await self.current_process.communicate()
 
         except Exception as e:
