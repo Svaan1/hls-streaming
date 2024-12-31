@@ -77,17 +77,23 @@ class MetricsTracker:
             if streaming_manager.current_process is None:
                 continue
 
-            p = psutil.Process(streaming_manager.current_process.pid)
+            try:
+                p = psutil.Process(streaming_manager.current_process.pid)
 
-            cpu_gauge = self.cpu_gauges[streaming_manager.channel_name]
-            memory_gauge = self.memory_gauges[streaming_manager.channel_name]
+                cpu_gauge = self.cpu_gauges[streaming_manager.channel_name]
+                memory_gauge = self.memory_gauges[streaming_manager.channel_name]
 
-            cpu_usage = p.cpu_percent(interval=1.0)
-            memory_usage = p.memory_info().rss
+                cpu_usage = p.cpu_percent(interval=1.0)
+                memory_usage = p.memory_info().rss
 
-            cpu_gauge.set(cpu_usage)
-            memory_gauge.set(memory_usage)
+                cpu_gauge.set(cpu_usage)
+                memory_gauge.set(memory_usage)
 
-            with open(settings.hls_output + "/" + streaming_manager.channel_name + "/metrics.log", "a") as log_file:
-                timestamp = datetime.now().strftime("%H:%M:%S")
-                log_file.write(f"[{timestamp}] PID: {streaming_manager.current_process.pid} CPU: {cpu_usage} Memory: {memory_usage}\n")
+                with open(settings.hls_output + "/" + streaming_manager.channel_name + "/metrics.log", "a") as log_file:
+                    timestamp = datetime.now().strftime("%H:%M:%S")
+                    log_file.write(f"[{timestamp}] PID: {streaming_manager.current_process.pid} CPU: {cpu_usage} Memory: {memory_usage}\n")
+
+            except Exception as e:
+                with open(settings.hls_output + "/" + streaming_manager.channel_name + "/metrics.log", "a") as log_file:
+                    timestamp = datetime.now().strftime("%H:%M:%S")
+                    log_file.write(f"[{timestamp}] Failed to collect metrics: {str(e)}\n")
