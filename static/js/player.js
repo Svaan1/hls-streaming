@@ -1,6 +1,9 @@
 const video = document.getElementById('hls-video');
-let currentChannelIndex = 0;
 const channels = window.availableChannels;
+let currentChannelIndex = 0;
+let volumeTimeout;
+let currentVolume = 0;
+video.volume = currentVolume;
 
 function getHlsUrl(channelName) {
     return `/hls/${channelName}/index.m3u8`;
@@ -52,9 +55,37 @@ video.addEventListener('ended', () => {
 
 function toggleMute() {
     if (!isPowered) return;
-    const video = document.getElementById('hls-video');
     video.muted = !video.muted;
-    document.querySelector('.mute-indicator').classList.toggle('active', !video.muted);
+    currentVolume = video.muted ? 0 : currentVolume;
+    document.querySelector('.mute-btn').classList.toggle('active', !video.muted);
+    if (!video.muted && currentVolume === 0) {
+        currentVolume = 0.5;
+        video.volume = currentVolume;
+    }
+    updateVolumeIndicator();
+}
+
+function increaseVolume() {
+    if (!isPowered) return;
+    currentVolume = Math.min(1.0, currentVolume + 0.1);
+    video.volume = currentVolume;
+    updateVolumeIndicator();
+    if (video.muted) {
+        video.muted = false;
+        document.querySelector('.mute-btn').classList.add('active');
+    }
+}
+
+function decreaseVolume() {
+    if (!isPowered) return;
+    currentVolume = Math.max(0, currentVolume - 0.1);
+    video.volume = currentVolume;
+    updateVolumeIndicator();
+    
+    if (currentVolume === 0) {
+        video.muted = true;
+        document.querySelector('.mute-btn').classList.remove('active');
+    }
 }
 
 function togglePower() {
@@ -63,12 +94,13 @@ function togglePower() {
     
     if (isPowered) {
         video.style.opacity = '1';
+        video.volume = currentVolume;  // Restore volume when turning on
     } else {
         video.style.opacity = '0';
         video.muted = true;
-        document.querySelector('.mute-indicator').classList.remove('active');
+        document.querySelector('.mute-btn').classList.remove('active');
     }
-    document.querySelector('.power-indicator').classList.toggle('active', isPowered);
+    document.querySelector('.power-btn').classList.toggle('active', isPowered);
 }
 
 function toggleFullscreen() {
@@ -90,5 +122,22 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-document.querySelector('.power-indicator').classList.toggle('active', isPowered);
+document.querySelector('.power-btn').classList.toggle('active', isPowered);
 document.getElementById('hls-video').style.opacity = '1';
+
+function updateVolumeIndicator() {
+    const volumeIndicator = document.querySelector('.volume-indicator');
+    const volumeLevel = document.querySelector('.volume-level');
+    const volumeText = document.querySelector('.volume-text');
+    const percentage = Math.round(currentVolume * 100);
+    
+    volumeLevel.style.width = `${percentage}%`;
+    volumeText.textContent = `${percentage}%`;
+    
+    volumeIndicator.classList.add('show');
+    
+    clearTimeout(volumeTimeout);
+    volumeTimeout = setTimeout(() => {
+        volumeIndicator.classList.remove('show');
+    }, 2000);
+}

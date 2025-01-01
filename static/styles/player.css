@@ -98,6 +98,26 @@ body {
     justify-content: center;
     box-shadow: 5px 5px 10px rgba(0,0,0,0.3),
                 -5px -5px 10px rgba(255,255,255,0.05);
+    transition: all 0.3s ease;
+}
+
+/* Remove the old indicator styles */
+.power-indicator,
+.mute-indicator {
+    display: none;
+}
+
+/* Add new active button styles */
+.power-btn.active,
+.mute-btn.active {
+    box-shadow: 0 0 15px #4CAF50,
+                inset 0 0 10px #4CAF50;
+    border: 1px solid #4CAF50;
+}
+
+.power-btn.active .btn-icon,
+.mute-btn.active .btn-icon {
+    color: #4CAF50;
 }
 
 .tv-btn:active {
@@ -123,27 +143,10 @@ body {
     transform: scale(0.95);
 }
 
-.power-indicator,
-.mute-indicator {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background-color: #333;
-    bottom: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    transition: background-color 0.3s;
-}
-
-.power-indicator.active {
-    background-color: #4CAF50;
-    box-shadow: 0 0 10px #4CAF50;
-}
-
-.mute-indicator.active {
-    background-color: #4CAF50;
-    box-shadow: 0 0 10px #4CAF50;
+.volume-btn .btn-icon {
+    font-size: 18px;
+    font-weight: bold;
+    color: #808080;
 }
 
 .screen.fullscreen {
@@ -161,4 +164,47 @@ body {
     width: 100%;
     height: 100%;
     object-fit: contain;
+}
+
+.volume-indicator {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px;  /* Increased padding for better spacing */
+    border-radius: 8px;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    align-items: center;  /* Added to vertically center contents */
+}
+
+.volume-indicator.show {
+    display: flex;
+    opacity: 1;
+}
+
+.volume-bar {
+    width: 100px;
+    height: 8px;  /* Increased height of container */
+    background: #333;
+    border-radius: 4px;
+    margin-right: 10px;
+    display: flex;  /* Added for vertical centering */
+    align-items: center;  /* Added for vertical centering */
+}
+
+.volume-level {
+    width: 100%;
+    height: 4px;  /* Keep the actual bar thinner */
+    background: #4CAF50;
+    border-radius: 2px;
+    transition: width 0.2s ease;
+}
+
+.volume-text {
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    min-width: 45px;
 }
