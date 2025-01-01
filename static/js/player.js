@@ -1,7 +1,8 @@
 const video = document.getElementById('hls-video');
 const channels = window.availableChannels;
-let currentChannelIndex = 0;
 let volumeTimeout;
+let currentChannelIndex = 0;
+let volumeBeforeMute = 0;
 let currentVolume = 0;
 video.volume = currentVolume;
 
@@ -50,18 +51,23 @@ video.addEventListener('ended', () => {
     setTimeout(() => {
         console.log('Restarting video after 5 seconds...');
     }, 5000);
-    loadVideo(getHlsUrl(channels[currentChannelIndex]));
+
+    let channel = channels[currentChannelIndex];
+    let url = getHlsUrl(channel);
+    loadVideo(url);
 });
 
 function toggleMute() {
     if (!isPowered) return;
     video.muted = !video.muted;
-    currentVolume = video.muted ? 0 : currentVolume;
-    document.querySelector('.mute-btn').classList.toggle('active', !video.muted);
-    if (!video.muted && currentVolume === 0) {
-        currentVolume = 0.5;
-        video.volume = currentVolume;
+    if (video.muted) {
+        volumeBeforeMute = currentVolume;
+        currentVolume = 0;
+    } else {
+        currentVolume = volumeBeforeMute || 0.5;
     }
+    video.volume = currentVolume;
+    document.querySelector('.mute-btn').classList.toggle('active', !video.muted);
     updateVolumeIndicator();
 }
 
