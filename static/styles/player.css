@@ -101,13 +101,11 @@ body {
     transition: all 0.3s ease;
 }
 
-/* Remove the old indicator styles */
 .power-indicator,
 .mute-indicator {
     display: none;
 }
 
-/* Add new active button styles */
 .power-btn.active,
 .mute-btn.active {
     box-shadow: 0 0 15px #4CAF50,
@@ -171,12 +169,12 @@ body {
     top: 20px;
     right: 20px;
     background: rgba(0, 0, 0, 0.7);
-    padding: 15px;  /* Increased padding for better spacing */
+    padding: 15px;
     border-radius: 8px;
     display: none;
     opacity: 0;
     transition: opacity 0.3s ease;
-    align-items: center;  /* Added to vertically center contents */
+    align-items: center;
 }
 
 .volume-indicator.show {
@@ -186,17 +184,17 @@ body {
 
 .volume-bar {
     width: 100px;
-    height: 8px;  /* Increased height of container */
+    height: 8px;
     background: #333;
     border-radius: 4px;
     margin-right: 10px;
-    display: flex;  /* Added for vertical centering */
-    align-items: center;  /* Added for vertical centering */
+    display: flex;
+    align-items: center;
 }
 
 .volume-level {
     width: 100%;
-    height: 4px;  /* Keep the actual bar thinner */
+    height: 4px;
     background: #4CAF50;
     border-radius: 2px;
     transition: width 0.2s ease;
