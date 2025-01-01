@@ -14,3 +14,6 @@ preset = "veryfast"
 hls_time = "4"
 hls_list_size = "5"
 hls_flags = "delete_segments"
+
+[metrics]
+interval = 5

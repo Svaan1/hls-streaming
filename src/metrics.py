@@ -70,7 +70,7 @@ class MetricsTracker:
             except Exception as e:
                 logger.error("Failed to collect metrics: " + str(e))
                 return
-            await asyncio.sleep(15)
+            await asyncio.sleep(settings.metrics.interval)
 
     async def _collect_metrics(self):
         for streaming_manager in self.streaming_managers:

@@ -17,16 +17,22 @@ class FFmpegSettings(BaseModel):
     hls_flags: str
 
 
+class MetricsSettings(BaseModel):
+    interval: int
+
+
 class Settings(BaseModel):
     hls_output: str
     channels: Dict[str, Any]
     ffmpeg: FFmpegSettings
+    metrics: MetricsSettings
 
     @classmethod
     def from_dynaconf(cls, dynaconf_settings: Dynaconf) -> "Settings":
         settings_dict = {
             "hls_output": dynaconf_settings.hls_output,
             "channels": dynaconf_settings.channels,
+            "metrics": {"interval": dynaconf_settings.metrics.interval},
             "ffmpeg": {
                 "binary_path": dynaconf_settings.ffmpeg.binary_path,
                 "video_bitrate": dynaconf_settings.ffmpeg.video_bitrate,
